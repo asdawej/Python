@@ -20,11 +20,65 @@ def istree(arr: list[list[bool]]) -> bool:
         return True
 
 
+class TreeNode(object):
+    def __init__(
+        self,
+        index: int,
+        sons: list['TreeNode'] = []
+    ):
+        self.index = index
+        self.sons = sons
+
+
+def tree2arr(root: TreeNode) -> list[list[bool]]:
+    # declare E and |V|
+    connect_set = set()
+    length = 1
+
+    # a trick of recursion to ergodic the tree
+    def f(node: TreeNode):
+        if node.sons == []:
+            pass
+        else:
+            for x in node.sons:
+                connect_set.add((node.index, x.index))
+                connect_set.add((x.index, node.index))
+                nonlocal length
+                length += 1
+            for x in node.sons:
+                f(x)
+
+    f(root)
+    # declare the adjacency matrix
+    arr = []
+    for i in range(length):
+        temp = []
+        for j in range(length):
+            temp.append(0)
+        arr.append(temp)
+    # to construct the adjacency matrix
+    for i in range(length):
+        for j in range(length):
+            if (i, j) in connect_set:
+                arr[i][j] = 1
+    return arr
+
+
 if __name__ == '__main__':
-    arr = [
-        [0, 1, 0, 0],
-        [1, 0, 1, 1],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0]
-    ]
-    print(istree(arr))
+    root = TreeNode(
+        index=0,
+        sons=[
+            TreeNode(
+                index=3,
+                sons=[
+                    TreeNode(
+                        index=1,
+                    ),
+                    TreeNode(
+                        index=2
+                    )
+                ]
+            )
+        ]
+    )
+    print(tree2arr(root))
