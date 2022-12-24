@@ -5,7 +5,7 @@ root        # input root node
 length=1    # to record the numbers of nodes
 
 def f(node: TreeNode):
-    if node.sons == []:
+    if node.sons == None:
         pass
     else:
         for x in node.sons:
@@ -24,14 +24,14 @@ f(root) # recurse
 
 class TreeNode(object):
     '''
-    index: int,
-    sons: list['TreeNode'] = []
+    index: int = 0,
+    sons: list['TreeNode'] = None
     '''
 
     def __init__(
         self,
-        index: int,
-        sons: list['TreeNode'] = []
+        index: int = 0,
+        sons: list['TreeNode'] = None
     ):
         self.index = index
         self.sons = sons
@@ -43,7 +43,7 @@ def tree2arr(root: TreeNode) -> list[list[bool]]:
     length = 1
 
     def f(node: TreeNode):
-        if node.sons == []:
+        if node.sons == None:
             pass
         else:
             for x in node.sons:
@@ -97,7 +97,7 @@ def father_code(root: TreeNode) -> list[int]:
     length = 1
 
     def f(node: TreeNode):
-        if node.sons == []:
+        if node.sons == None:
             pass
         else:
             for x in node.sons:
@@ -117,6 +117,14 @@ def father_code(root: TreeNode) -> list[int]:
     return code
 
 
+def father_code2tree(code: list[int]) -> TreeNode:
+    length = len(code)+1
+    nodes = [TreeNode(index=i, sons=[]) for i in range(length)]
+    for i in range(length-1):
+        nodes[code[i]].sons.append(nodes[i+1])
+    return nodes[0]
+
+
 if __name__ == '__main__':
     root = TreeNode(
         index=0,
@@ -124,10 +132,17 @@ if __name__ == '__main__':
             TreeNode(
                 index=3,
                 sons=[
-                    TreeNode(index=1),
+                    TreeNode(index=1, sons=[]),
                     TreeNode(index=2)
                 ]
             )
         ]
     )
+    code = father_code(root)
     print(father_code(root))
+    root = father_code2tree(code)
+    print(root.index)
+    root = root.sons[0]
+    print(root.index)
+    print(root.sons[0].index)
+    print(root.sons[1].index)
