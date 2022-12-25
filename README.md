@@ -1,7 +1,5 @@
 # Python - asdawej's test projects
 
-[TOC]
-
 ## Module_Lines_Dictionary
 
 A project started with the aim of learning new language and modules and to store, arrange, and search in lines.
