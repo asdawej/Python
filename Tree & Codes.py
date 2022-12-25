@@ -24,8 +24,11 @@ f(root) # recurse
 
 class TreeNode(object):
     '''
-    index: int = 0,
-    sons: list['TreeNode'] = [](not union)
+    attr:
+        index: int = 0,
+        sons: list['TreeNode'] = [] (not shared default)
+    method:
+        __eq__
     '''
 
     def __init__(
@@ -38,6 +41,14 @@ class TreeNode(object):
             self.sons = []
         else:
             self.sons = sons
+
+    def __eq__(self, other: 'TreeNode') -> bool:
+        self_sons = sorted(self.sons, key=lambda x: x.index)
+        other_sons = sorted(other.sons, key=lambda x: x.index)
+        if self.index == other.index and self_sons == other_sons:
+            return True
+        else:
+            return False
 
 
 def tree2arr(root: TreeNode) -> list[list[bool]]:
@@ -149,7 +160,37 @@ def prufer_code(root: TreeNode) -> list[int]:
     return code[:-1]    # the end is always 0, so we do not store it
 
 
+def prufer_code2tree(code: list[int]) -> TreeNode:
+    length = len(code)+2
+    aug_code = code+[0]         # add 0 to the end
+    nodes = [
+        TreeNode(index=i)
+        for i in range(length)
+    ]
+    above_line: list[int] = []  # store the sons
+    leaves = [
+        i
+        for i in range(1, length)
+        if not i in aug_code
+    ]
+    for i in range(length-1):
+        temp = length    # the temp index-min node
+        for x in leaves:
+            if not x in above_line and not x in aug_code[i:]:
+                if x < temp:
+                    temp = x
+        for x in aug_code[:i]:
+            if not x in above_line and not x in aug_code[i:]:
+                if x < temp:
+                    temp = x
+        above_line.append(temp)
+    for i in range(length-1):
+        nodes[aug_code[i]].sons.append(nodes[above_line[i]])
+    return nodes[0]
+
+
 if __name__ == '__main__':
+    # example tree
     root = TreeNode(
         index=0,
         sons=[
@@ -176,3 +217,4 @@ if __name__ == '__main__':
     )
     print(father_code(root))
     print(prufer_code(root))
+    print(root == prufer_code2tree(prufer_code(root)))
