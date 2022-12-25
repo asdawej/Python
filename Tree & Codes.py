@@ -5,7 +5,7 @@ root        # input root node
 length=1    # to record the numbers of nodes
 
 def f(node: TreeNode):
-    if node.sons == None:
+    if node.sons == []:
         pass
     else:
         for x in node.sons:
@@ -25,7 +25,7 @@ f(root) # recurse
 class TreeNode(object):
     '''
     index: int = 0,
-    sons: list['TreeNode'] = None
+    sons: list['TreeNode'] = [](not union)
     '''
 
     def __init__(
@@ -34,7 +34,10 @@ class TreeNode(object):
         sons: list['TreeNode'] = None
     ):
         self.index = index
-        self.sons = sons
+        if sons == None:
+            self.sons = []
+        else:
+            self.sons = sons
 
 
 def tree2arr(root: TreeNode) -> list[list[bool]]:
@@ -43,7 +46,7 @@ def tree2arr(root: TreeNode) -> list[list[bool]]:
     length = 1
 
     def f(node: TreeNode):
-        if node.sons == None:
+        if node.sons == []:
             pass
         else:
             for x in node.sons:
@@ -97,7 +100,7 @@ def father_code(root: TreeNode) -> list[int]:
     length = 1
 
     def f(node: TreeNode):
-        if node.sons == None:
+        if node.sons == []:
             pass
         else:
             for x in node.sons:
@@ -119,30 +122,57 @@ def father_code(root: TreeNode) -> list[int]:
 
 def father_code2tree(code: list[int]) -> TreeNode:
     length = len(code)+1
-    nodes = [TreeNode(index=i, sons=[]) for i in range(length)]
+    nodes = [TreeNode(index=i) for i in range(length)]
     for i in range(length-1):
         nodes[code[i]].sons.append(nodes[i+1])
     return nodes[0]
+
+
+def prufer_code(root: TreeNode) -> list[int]:
+    mat = tree2arr(root)    # adjacency matrix
+    length = len(mat)       # |V|
+    pick_set = set()        # store the nodes picked out
+    code = []               # store prufer code
+    while len(pick_set) != length-1:
+        for i in range(1, length):
+            if not i in pick_set:
+                connect_num = 0     # degree
+                temp_father = 0     # if degree is 1, it will be the true father
+                for j in range(length):
+                    if not j in pick_set and mat[i][j]:
+                        connect_num += 1
+                        temp_father = j
+                if connect_num == 1:
+                    pick_set.add(i)
+                    code.append(temp_father)
+                    break
+    return code[:-1]    # the end is always 0, so we do not store it
 
 
 if __name__ == '__main__':
     root = TreeNode(
         index=0,
         sons=[
+            TreeNode(index=1),
             TreeNode(
-                index=3,
+                index=5,
                 sons=[
-                    TreeNode(index=1, sons=[]),
-                    TreeNode(index=2)
+                    TreeNode(
+                        index=4,
+                        sons=[
+                            TreeNode(index=3)
+                        ]
+                    ),
+                    TreeNode(
+                        index=6,
+                        sons=[
+                            TreeNode(index=2),
+                            TreeNode(index=7)
+                        ]
+                    )
                 ]
             )
         ]
     )
-    code = father_code(root)
     print(father_code(root))
-    root = father_code2tree(code)
-    print(root.index)
-    root = root.sons[0]
-    print(root.index)
-    print(root.sons[0].index)
-    print(root.sons[1].index)
+    print(prufer_code(root))
