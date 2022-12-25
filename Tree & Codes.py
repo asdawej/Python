@@ -189,6 +189,84 @@ def prufer_code2tree(code: list[int]) -> TreeNode:
     return nodes[0]
 
 
+class SecondaryNode(object):
+    '''
+    attr:
+        outer: 'SecondaryNode' = None
+        inter: 'SecondaryNode' = None
+    '''
+
+    def __init__(
+        self,
+        outer: 'SecondaryNode' = None,
+        inter: 'SecondaryNode' = None
+    ):
+        self.outer = outer
+        self.inter = inter
+
+
+class UnionNode(object):
+    '''
+    attr:
+        interset: list[SecondaryNode] = [] (not shared default)
+    '''
+
+    def __init__(
+        self,
+        interset: list[SecondaryNode] = None
+    ):
+        if interset == None:
+            self.interset = []
+        else:
+            self.interset = interset
+
+
+def UnionNode_connect(
+    node1: UnionNode,
+    node2: UnionNode,
+    prev1: SecondaryNode = None,
+    next1: SecondaryNode = None,
+    prev2: SecondaryNode = None,
+    next2: SecondaryNode = None
+):
+    if node1.interset == []:
+        node1.interset.append(SecondaryNode())
+        node1.interset[0].inter = node1.interset[0]
+        if node2.interset == []:
+            node2.interset.append(SecondaryNode())
+            node2.interset[0].inter = node2.interset[0]
+            node1.interset[0].outer = node2.interset[0]
+            node2.interset[0].outer = node1.interset[0]
+        else:
+            node2.interset.append(
+                SecondaryNode(
+                    inter=next2,
+                    outer=node1.interset[0]
+                )
+            )
+            prev2.inter = node2.interset[-1]
+            node1.interset[0].outer = node2.interset[-1]
+    else:
+        if node2.interset == []:
+            node2.interset.append(SecondaryNode())
+            node2.interset[0].inter = node2.interset[0]
+            node1.interset.append(
+                SecondaryNode(
+                    inter=next1,
+                    outer=node2.interset[0]
+                )
+            )
+            prev1.inter = node1.interset[-1]
+            node2.interset[0].outer = node1.interset[-1]
+        else:
+            node1.interset.append(SecondaryNode(inter=next1))
+            node2.interset.append(SecondaryNode(inter=next2))
+            prev1.inter = node1.interset[-1]
+            prev2.inter = node2.interset[-1]
+            node1.interset[-1].outer = node2.interset[-1]
+            node2.interset[-1].outer = node1.interset[-1]
+
+
 if __name__ == '__main__':
     # example tree
     root = TreeNode(
