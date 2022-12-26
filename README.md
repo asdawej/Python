@@ -28,4 +28,4 @@ Reasonable designed but do not get the expected effect.
 
 ## Tree & Codes
 
-For essay of decrete mathematics. In hand and successful.
+For essay of decrete mathematics. A big success.
