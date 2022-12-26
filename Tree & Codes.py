@@ -195,15 +195,18 @@ class SecondaryNode(object):
     attr:
         outer: 'SecondaryNode' = None
         inter: 'SecondaryNode' = None
+        upper: 'UnionNode' = None
     '''
 
     def __init__(
         self,
         outer: 'SecondaryNode' = None,
-        inter: 'SecondaryNode' = None
+        inter: 'SecondaryNode' = None,
+        upper: 'UnionNode' = None
     ):
         self.outer = outer
         self.inter = inter
+        self.upper = upper
 
 
 class UnionNode(object):
@@ -223,45 +226,55 @@ class UnionNode(object):
 
 
 def UnionNode_connect(
-    node1: UnionNode,
-    node2: UnionNode,
+    node1: UnionNode = None,
+    node2: UnionNode = None,
     prev1: SecondaryNode = None,
-    next1: SecondaryNode = None,
     prev2: SecondaryNode = None,
-    next2: SecondaryNode = None
 ):
     if node1.interset == []:
-        node1.interset.append(SecondaryNode())
+        node1.interset.append(SecondaryNode(upper=node1))
         node1.interset[0].inter = node1.interset[0]
         if node2.interset == []:
-            node2.interset.append(SecondaryNode())
+            node2.interset.append(SecondaryNode(upper=node2))
             node2.interset[0].inter = node2.interset[0]
             node1.interset[0].outer = node2.interset[0]
             node2.interset[0].outer = node1.interset[0]
         else:
             node2.interset.append(
                 SecondaryNode(
-                    inter=next2,
-                    outer=node1.interset[0]
+                    inter=prev2.inter,
+                    outer=node1.interset[0],
+                    upper=node2
                 )
             )
             prev2.inter = node2.interset[-1]
             node1.interset[0].outer = node2.interset[-1]
     else:
         if node2.interset == []:
-            node2.interset.append(SecondaryNode())
+            node2.interset.append(SecondaryNode(upper=node2))
             node2.interset[0].inter = node2.interset[0]
             node1.interset.append(
                 SecondaryNode(
-                    inter=next1,
-                    outer=node2.interset[0]
+                    inter=prev1.inter,
+                    outer=node2.interset[0],
+                    upper=node1
                 )
             )
             prev1.inter = node1.interset[-1]
             node2.interset[0].outer = node1.interset[-1]
         else:
-            node1.interset.append(SecondaryNode(inter=next1))
-            node2.interset.append(SecondaryNode(inter=next2))
+            node1.interset.append(
+                SecondaryNode(
+                    inter=prev1.inter,
+                    upper=node1
+                )
+            )
+            node2.interset.append(
+                SecondaryNode(
+                    inter=prev2.inter,
+                    upper=node2
+                )
+            )
             prev1.inter = node1.interset[-1]
             prev2.inter = node2.interset[-1]
             node1.interset[-1].outer = node2.interset[-1]
@@ -272,7 +285,7 @@ def planar_code(start_node: SecondaryNode) -> list[bool]:
     'The start_node should be a leaf'
     ptr = start_node.outer              # moving ptr
     path_set = [{start_node, ptr}]      # record the path
-    code = [1]                          # planar code
+    code: list[bool] = []               # planar code
     while ptr != start_node:
         ptr = ptr.inter
         temp_set = {ptr}
@@ -284,11 +297,28 @@ def planar_code(start_node: SecondaryNode) -> list[bool]:
             code.append(1)
             path_set.append(temp_set)
     # the start is 1 and the end is 0, ignored
-    return code[1:-1]
+    return code[:-1]
+
+
+def planar_code2tree(code: list[bool]) -> UnionNode:
+    start_node = UnionNode()
+    UnionNode_connect(node1=start_node, node2=UnionNode())
+    ptr = start_node.interset[0].outer
+    for x in code:
+        if x:
+            UnionNode_connect(
+                node1=ptr.upper,
+                node2=UnionNode(),
+                prev1=ptr
+            )
+            ptr = ptr.inter.outer
+        else:
+            ptr = ptr.outer.inter
+    return start_node
 
 
 if __name__ == '__main__':
-    # example tree
+    # example labeled tree
     root = TreeNode(
         index=0,
         sons=[
@@ -313,11 +343,16 @@ if __name__ == '__main__':
             )
         ]
     )
+    # test father_code()
     print(father_code(root))
+    # test father_code2tree()
     print(root == father_code2tree(father_code(root)))
+    # test prufer_code()
     print(prufer_code(root))
+    # test prufer_code2tree()
     print(root == prufer_code2tree(prufer_code(root)))
 
+    # example unlabeled tree
     tree = [UnionNode() for _ in range(4)]
     UnionNode_connect(
         node1=tree[0],
@@ -326,17 +361,22 @@ if __name__ == '__main__':
     UnionNode_connect(
         node1=tree[0],
         node2=tree[2],
-        prev1=tree[0].interset[0],
-        next1=tree[0].interset[0]
+        prev1=tree[0].interset[0]
     )
     UnionNode_connect(
         node1=tree[0],
         node2=tree[3],
         prev1=tree[0].interset[0],
-        next1=tree[0].interset[1]
     )
+    # test planar_code()
     print(
         planar_code(tree[1].interset[0]),
         planar_code(tree[2].interset[0]),
         planar_code(tree[3].interset[0])
     )
+    # test planar_code2tree()
+    start = planar_code2tree(planar_code(tree[1].interset[0]))
+    print(start.interset)
+    print(start.interset[0].outer.upper.interset)
+    print(start.interset[0].outer.inter.outer.upper.interset)
+    print(start.interset[0].outer.inter.inter.outer.upper.interset)
