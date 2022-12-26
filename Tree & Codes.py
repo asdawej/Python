@@ -157,7 +157,8 @@ def prufer_code(root: TreeNode) -> list[int]:
                     pick_set.add(i)
                     code.append(temp_father)
                     break
-    return code[:-1]    # the end is always 0, so we do not store it
+    # the end is always 0, so we do not store it
+    return code[:-1]
 
 
 def prufer_code2tree(code: list[int]) -> TreeNode:
@@ -267,6 +268,25 @@ def UnionNode_connect(
             node2.interset[-1].outer = node1.interset[-1]
 
 
+def planar_code(start_node: SecondaryNode) -> list[bool]:
+    'The start_node should be a leaf'
+    ptr = start_node.outer              # moving ptr
+    path_set = [{start_node, ptr}]      # record the path
+    code = [1]                          # planar code
+    while ptr != start_node:
+        ptr = ptr.inter
+        temp_set = {ptr}
+        ptr = ptr.outer
+        temp_set.add(ptr)
+        if temp_set in path_set:
+            code.append(0)
+        else:
+            code.append(1)
+            path_set.append(temp_set)
+    # the start is 1 and the end is 0, ignored
+    return code[1:-1]
+
+
 if __name__ == '__main__':
     # example tree
     root = TreeNode(
@@ -294,5 +314,29 @@ if __name__ == '__main__':
         ]
     )
     print(father_code(root))
+    print(root == father_code2tree(father_code(root)))
     print(prufer_code(root))
     print(root == prufer_code2tree(prufer_code(root)))
+
+    tree = [UnionNode() for _ in range(4)]
+    UnionNode_connect(
+        node1=tree[0],
+        node2=tree[1]
+    )
+    UnionNode_connect(
+        node1=tree[0],
+        node2=tree[2],
+        prev1=tree[0].interset[0],
+        next1=tree[0].interset[0]
+    )
+    UnionNode_connect(
+        node1=tree[0],
+        node2=tree[3],
+        prev1=tree[0].interset[0],
+        next1=tree[0].interset[1]
+    )
+    print(
+        planar_code(tree[1].interset[0]),
+        planar_code(tree[2].interset[0]),
+        planar_code(tree[3].interset[0])
+    )
