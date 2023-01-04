@@ -1,10 +1,8 @@
 # Python - asdawej's test projects
 
-## Module_Lines_Dictionary
+## Tree & Codes
 
-A project started with the aim of learning new language and modules and to store, arrange, and search in lines.
-
-However, not familiar with file io and not using C language led to its failure and being given up.
+For essay of decrete mathematics. A big success.
 
 ## __modules/LinkedList
 
@@ -14,18 +12,21 @@ In hand but now do not doing now.
 
 In hand, no progress.
 
-## Curve_Fit
+## FAIL/Curve_Fit
 
 First practice of machine learning, half-success and half-failure.
 
-## Evolution_Simulator
+## FAIL/Evolution_Simulator
 
 Practice of evoultion model, failure with unknown reason.
 
-## Test_Learning_Model
+## FAIL/Test_Learning_Model
 
 Reasonable designed but do not get the expected effect.
 
-## Tree & Codes
 
-For essay of decrete mathematics. A big success.
+## FAIL/Module_Lines_Dictionary
+
+A project started with the aim of learning new language and modules and to store, arrange, and search in lines.
+
+However, not familiar with file io and not using C language led to its failure and being given up.
