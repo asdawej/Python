@@ -7,7 +7,7 @@ __author__ = 'asdawej'
 class Shape(object):
     '''Embedded class, may not use it'''
 
-    def __init__(self, m: int, n: int):
+    def __init__(self, m: int, n: int) -> NoReturn:
         self.m = m
         self.n = n
 
@@ -332,21 +332,57 @@ class Matrix(object):
         '''
         return self.shape.m*self.shape.n
 
+    def T(self) -> 'Matrix':
+        '''
+        Return the transposition Matrix
+        '''
+        temp: list[list] = []
+        for j in range(self.shape.n):
+            temp.append([])
+            for i in range(self.shape.m):
+                temp[j].append(self.mat[i][j])
+        return Matrix(temp)
 
-"""
-    def enblock(self, row_block: list[int], column_block: list[int]):
-        '''Enblock matrix according to the /row_block/ and /column_block/, as:\n
-        /#Mat=[[0, 1, 2], [3, 4, 5]], row_block=[1, 1], column_block=[1, 2]\n
-        ->[[0, Mat_1], [3, Mat_2]], Mat_1=[[1, 2]], Mat_2=[[4, 5]]#/'''
-        # _m=[[None for x in column_block] for y in row_block]
-        pass
-"""
+    def enblock(self, row_block: list[int], column_block: list[int]) -> 'Matrix':
+        '''
+        Enblock matrix according to the /row_block/ and /column_block/\n
+        ---\n
+        Mat=\n
+        [[0, 1, 2],\n
+        [3, 4, 5]],\n
+        row_block=[1, 1],\n
+        column_block=[1, 2]\n
+        ->\n
+        [[0, Mat_1],\n
+        [3, Mat_2]],\n
+        Mat_1=[[1, 2]],\n
+        Mat_2=[[4, 5]]
+        '''
+        temp: list[list] = []
+        row_start = 1
+        column_start = 1
+        for x in row_block:
+            temp.append([])
+            for y in column_block:
+                if x == 1 and y == 1:
+                    temp[-1].append(self[row_start, column_start])
+                else:
+                    temp[-1].append(self[row_start:row_start+x, column_start:column_start+y])
+                column_start += y
+            column_start = 1
+            row_start += x
+        return Matrix(temp)
 
 
 # Test
 if __name__ == '__main__':
     a = Matrix([[0, 1, 2], [3, 4, 5]])
-    print(a[::-1, ::-1])
+    print(a[::-1, ::-1], '\n')
     b = Matrix([[1], [2], [3]])
-    print(b[2:])
-    print(len(b))
+    print(b[2:], '\n')
+    print(len(a), '\n')
+    print(a.T(), '\n')
+    print(b.T(), '\n')
+    c = a.enblock([1, 1], [1, 2])
+    print(c[1, 1], c[1, 2])
+    print(c[2, 1], c[2, 2], '\n')
