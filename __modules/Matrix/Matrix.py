@@ -35,7 +35,7 @@ class Matrix(object):
     ) -> Any | 'Matrix' | NoReturn:
         '''
         Index from 1 to m, from 1 to n\n
-        - If int, return an element or a row\n
+        - If int, return an element in a row or column vector, or a row in a general Matrix\n
         - If slice, always return a Matrix\n
             - If self.shape.m == 1, return a row vector\n
             - Else, return a Matrix of rows\n
@@ -44,7 +44,7 @@ class Matrix(object):
             - One row:\n
                 - One column, return an element\n
                 - Slice columns, return a row vector\n
-                -Ellipsis, return a row\n
+                - Ellipsis, return a row\n
             - Slice rows:\n
                 - One column, return a column vector\n
                 - Slice columns, return a general Matrix\n
@@ -55,10 +55,12 @@ class Matrix(object):
                 - Ellipsis, return a copy\n
         - Default, TypeError
         '''
-        # If int, return an element or a row
+        # If int, return an element in a row or column vector, or a row in a general Matrix
         if isinstance(key, int):
             if self.shape.m == 1:
                 return self.mat[0][key-1]
+            elif self.shape.n == 1:
+                return self.mat[key-1][0]
             else:
                 return Matrix([self.mat[key-1][:]])
 
@@ -181,20 +183,154 @@ class Matrix(object):
         else:
             raise TypeError
 
-    def __str__(self):
+    def __setitem__(
+        self, key: int | slice | EllipsisType | tuple[int | slice | EllipsisType],
+        value: Any
+    ) -> NoReturn:
+        '''
+        Index from 1 to m, from 1 to n
+        '''
+        # If int
+        if isinstance(key, int):
+            if self.shape.m == 1:
+                self.mat[0][key-1] = value
+            elif self.shape.n == 1:
+                self.mat[key-1][0] = value
+            else:
+                for i in range(self.shape.n):
+                    self.mat[key-1][i] = value
+
+        # If slice
+        elif isinstance(key, slice):
+            if key.start:
+                key = slice(key.start-1, key.stop, key.step)
+            if key.stop:
+                key = slice(key.start, key.stop-1, key.step)
+            for i in range(self.shape.m)[key]:
+                for j in range(self.shape.n):
+                    self.mat[i][j] = value
+
+        # If Ellipsis
+        elif key == Ellipsis:
+            for i in range(self.shape.m):
+                for j in range(self.shape.n):
+                    self.mat[i][j] = value
+
+        # If tuple, return an element or a Matrix
+        elif isinstance(key, tuple):
+            key = list(key)
+            # One row:
+            if isinstance(key[0], int):
+                # One column
+                if isinstance(key[1], int):
+                    self.mat[key[0]-1][key[1]-1] = value
+
+                # Slice columns
+                elif isinstance(key[1], slice):
+                    if key[1].start:
+                        key[1] = slice(key[1].start-1, key[1].stop, key[1].step)
+                    if key[1].stop:
+                        key[1] = slice(key[1].start, key[1].stop-1, key[1].step)
+                    for i in range(self.shape.n)[key[1]]:
+                        self.mat[key[0]-1][i] = value
+
+                # Ellipsis
+                elif key[1] == Ellipsis:
+                    for i in range(self.shape.n):
+                        self.mat[key[0]-1][i] = value
+
+                # Default, TypeError
+                else:
+                    raise TypeError
+
+            # Slice rows:
+            elif isinstance(key[0], slice):
+                if key[0].start:
+                    key[0] = slice(key[0].start-1, key[0].stop, key[0].step)
+                if key[0].stop:
+                    key[0] = slice(key[0].start, key[0].stop-1, key[0].step)
+                # One column
+                if isinstance(key[1], int):
+                    for i in range(self.shape.m)[key[0]]:
+                        self.mat[i][key[0]-1] = value
+
+                # Slice columns
+                elif isinstance(key[1], slice):
+                    if key[1].start:
+                        key[1] = slice(key[1].start-1, key[1].stop, key[1].step)
+                    if key[1].stop:
+                        key[1] = slice(key[1].start, key[1].stop-1, key[1].step)
+                    for i in range(self.shape.m)[key[0]]:
+                        for j in range(self.shape.n)[key[1]]:
+                            self.mat[i][j] = value
+
+                # Ellipsis
+                elif key[1] == Ellipsis:
+                    for i in range(self.shape.m)[key[0]]:
+                        for j in range(self.shape.n):
+                            self.mat[i][j] = value
+
+                # Default, TypeError
+                else:
+                    raise TypeError
+
+            # Ellipsis:
+            elif key[0] == Ellipsis:
+                # One column
+                if isinstance(key[1], int):
+                    for i in range(self.shape.m):
+                        self.mat[i][key[1]-1] = value
+
+                # Slice columns
+                elif isinstance(key[1], slice):
+                    if key[1].start:
+                        key[1] = slice(key[1].start-1, key[1].stop, key[1].step)
+                    if key[1].stop:
+                        key[1] = slice(key[1].start, key[1].stop-1, key[1].step)
+                    for i in range(self.shape.m):
+                        for j in range(self.shape.n)[key[1]]:
+                            self.mat[i][j] = value
+
+                # Ellipsis
+                elif key[1] == Ellipsis:
+                    for i in range(self.shape.m):
+                        for j in range(self.shape.n):
+                            self.mat[i][j] = value
+
+                # Default, TypeError
+                else:
+                    raise TypeError
+
+            # Default, TypeError
+            else:
+                raise TypeError
+
+        # Default, TypeError
+        else:
+            raise TypeError
+
+    def __str__(self) -> str:
         '''
         To print the Matrix
         '''
         s = '['
         for i in range(self.shape.m):
+            s += '['
             for j in range(self.shape.n):
                 s += str(self.mat[i][j])
                 if j != self.shape.n-1:
                     s += ', '
+            s += ']'
             if i != self.shape.m-1:
-                s += '\n'
+                s += ',\n'
         s += ']'
         return s
+
+    def __len__(self) -> int:
+        '''
+        To get the shape
+        '''
+        return self.shape.m*self.shape.n
 
 
 """
@@ -210,4 +346,7 @@ class Matrix(object):
 # Test
 if __name__ == '__main__':
     a = Matrix([[0, 1, 2], [3, 4, 5]])
-    print(a[...,3:1:-1])
+    print(a[::-1, ::-1])
+    b = Matrix([[1], [2], [3]])
+    print(b[2:])
+    print(len(b))
