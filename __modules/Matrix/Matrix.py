@@ -1,4 +1,4 @@
-from typing import Any, NoReturn
+from typing import Any, NoReturn, Iterator
 from types import EllipsisType
 
 __author__ = 'asdawej'
@@ -10,6 +10,9 @@ class Shape(object):
     def __init__(self, m: int, n: int) -> NoReturn:
         self.m = m
         self.n = n
+
+    def __eq__(self, other: 'Shape') -> bool:
+        return self.m == other.m and self.n == other.n
 
 
 class Matrix(object):
@@ -206,9 +209,14 @@ class Matrix(object):
                 key = slice(key.start-1, key.stop, key.step)
             if key.stop:
                 key = slice(key.start, key.stop-1, key.step)
-            for i in range(self.shape.m)[key]:
-                for j in range(self.shape.n):
-                    self.mat[i][j] = value
+            if self.shape.m == 1:
+                for i in range(self.shape.n)[key]:
+                    self.mat[0][i] = value
+
+            else:
+                for i in range(self.shape.m)[key]:
+                    for j in range(self.shape.n):
+                        self.mat[i][j] = value
 
         # If Ellipsis
         elif key == Ellipsis:
@@ -309,6 +317,62 @@ class Matrix(object):
         else:
             raise TypeError
 
+    def __add__(self, other: 'Matrix') -> 'Matrix':
+        if self.shape != other.shape:
+            raise ValueError('Wrong shape')
+        temp: list[list] = []
+        for i in range(self.shape.m):
+            temp.append([])
+            for j in range(self.shape.n):
+                temp[-1].append(self[i+1, j+1]+other[i+1, j+1])
+        return Matrix(temp)
+
+    def __sub__(self, other: 'Matrix') -> 'Matrix':
+        if self.shape != other.shape:
+            raise ValueError('Wrong shape')
+        temp: list[list] = []
+        for i in range(self.shape.m):
+            temp.append([])
+            for j in range(self.shape.n):
+                temp[-1].append(self[i+1, j+1]-other[i+1, j+1])
+        return Matrix(temp)
+
+    def __mul__(self, other: Any) -> 'Matrix':
+        temp: list[list] = []
+        for i in range(self.shape.m):
+            temp.append([])
+            for j in range(self.shape.n):
+                temp[-1].append(self[i+1, j+1]*other)
+        return Matrix(temp)
+
+    def __rmul__(self, other: Any) -> 'Matrix':
+        temp: list[list] = []
+        for i in range(self.shape.m):
+            temp.append([])
+            for j in range(self.shape.n):
+                temp[-1].append(other*self[i+1, j+1])
+        return Matrix(temp)
+
+    def __matmul__(self, other: 'Matrix') -> 'Matrix':
+        if self.shape.n != other.shape.m:
+            raise ValueError('Wrong shape')
+
+        def f(a: int, b: int) -> Any:
+            l = []
+            for i in range(self.shape.n):
+                try:
+                    l.append(self[a, i+1]*other[i+1, b])
+                except:
+                    l.append(self[a, i+1]@other[i+1, b])
+            return sum(l)
+
+        temp: list[list] = []
+        for i in range(self.shape.m):
+            temp.append([])
+            for j in range(other.shape.n):
+                temp[-1].append(f(i+1, j+1))
+        return Matrix(temp)
+
     def __str__(self) -> str:
         '''
         To print the Matrix
@@ -331,6 +395,22 @@ class Matrix(object):
         To get the shape
         '''
         return self.shape.m*self.shape.n
+
+    def __iter__(self) -> Iterator:
+        '''
+        An Iterator first left to right then up to down
+        '''
+        temp_list = []
+        for i in range(self.shape.m):
+            for j in range(self.shape.n):
+                temp_list.append(self.mat[i][j])
+        return iter(temp_list)
+
+    def __reversed__(self) -> Iterator:
+        '''
+        An Iterator first right to left then down to up
+        '''
+        return iter(self[::-1, ::-1])
 
     def T(self) -> 'Matrix':
         '''
@@ -377,12 +457,40 @@ class Matrix(object):
 # Test
 if __name__ == '__main__':
     a = Matrix([[0, 1, 2], [3, 4, 5]])
+    print('__getitem__ test:')
     print(a[::-1, ::-1], '\n')
+    a[1, ...] = -1
+    print('__setitem__ test:')
+    print(a, '\n')
     b = Matrix([[1], [2], [3]])
+    print('vector __getitem__ test:')
     print(b[2:], '\n')
+    b[:3] = 0
+    print('vector __setitem__ test:')
+    print(b, '\n')
+    print('__len__ test:')
     print(len(a), '\n')
+    print('self.T test:')
     print(a.T(), '\n')
+    print('vector self.T test:')
     print(b.T(), '\n')
     c = a.enblock([1, 1], [1, 2])
+    print('enblock test:')
     print(c[1, 1], c[1, 2])
     print(c[2, 1], c[2, 2], '\n')
+    print('__iter__ test:')
+    print(-1 in a, 6 in a, '\n')
+    print('__reversed__ test:')
+    print([_ for _ in reversed(a)], '\n')
+    d = Matrix([[1, 3, 2], [4, 0, 1]])
+    e = Matrix([[1, 3], [0, 1], [5, 2]])
+    f = Matrix([[1, 2, 3], [4, 5, 6]])
+    print('__add__ test:')
+    print(d+f, '\n')
+    print('__sub__ test:')
+    print(d-f, '\n')
+    print('__mul__ & __rmul__ test:')
+    print(f*4)
+    print(4*f, '\n')
+    print('__matmul__ test:')
+    print(d@e, '\n')
