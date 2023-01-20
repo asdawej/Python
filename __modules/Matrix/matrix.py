@@ -1,4 +1,4 @@
-from typing import Any, NoReturn, Iterator
+from typing import Any, NoReturn, Iterator, Dict
 from types import EllipsisType
 
 __author__ = 'asdawej'
@@ -17,14 +17,15 @@ class Shape(object):
 
 class Matrix(object):
     '''
-    Members are /mat/, /shape.m/, and /shape.n/\n
-    Methods are /element/, /row/, /column/
+    Members are /mat/, /shape.m/, /shape.n/\n
+    Methods are /T/, /enblock/, /unblock/
     '''
 
     def __init__(self, mat: list[list]) -> NoReturn:
         '''
         Automatically, we will count the shape\n
-        Members are /mat/, /shape.m/, and /shape.n/
+        ---
+        Members are /mat/, /shape.m/, /shape.n/
         '''
         s = len(mat[0])
         for x in mat:
@@ -38,24 +39,24 @@ class Matrix(object):
     ) -> Any | 'Matrix' | NoReturn:
         '''
         Index from 1 to m, from 1 to n\n
-        - If int, return an element in a row or column vector, or a row in a general Matrix\n
-        - If slice, always return a Matrix\n
-            - If self.shape.m == 1, return a row vector\n
-            - Else, return a Matrix of rows\n
-        - If Ellipsis, return a copy\n
-        - If tuple, return an element or a Matrix\n
-            - One row:\n
-                - One column, return an element\n
-                - Slice columns, return a row vector\n
-                - Ellipsis, return a row\n
-            - Slice rows:\n
-                - One column, return a column vector\n
-                - Slice columns, return a general Matrix\n
-                - Ellipsis, return a Matrix of rows\n
-            - Ellipsis:\n
-                - One column, return a coulumn\n
-                - Slice columns, return a Matrix of columns\n
-                - Ellipsis, return a copy\n
+        - If int, return an element in a row or column vector, or a row in a general Matrix
+        - If slice, always return a Matrix
+            - If self.shape.m == 1, return a row vector
+            - Else, return a Matrix of rows
+        - If Ellipsis, return a copy
+        - If tuple, return an element or a Matrix
+            - One row:
+                - One column, return an element
+                - Slice columns, return a row vector
+                - Ellipsis, return a row
+            - Slice rows:
+                - One column, return a column vector
+                - Slice columns, return a general Matrix
+                - Ellipsis, return a Matrix of rows
+            - Ellipsis:
+                - One column, return a coulumn
+                - Slice columns, return a Matrix of columns
+                - Ellipsis, return a copy
         - Default, TypeError
         '''
         # If int, return an element in a row or column vector, or a row in a general Matrix
@@ -396,7 +397,7 @@ class Matrix(object):
         '''
         return self.shape.m*self.shape.n
 
-    def __call__(self, *args: 'Matrix', kw: bool = False, **kwds: 'Matrix') -> 'Matrix':
+    def __call__(self, *args: 'Matrix', kw: bool = False, **kwds: 'Matrix') -> 'Matrix' | Dict[str, 'Matrix']:
         '''
         If flag is False, return self@args\n
         If, flag is True, return a dict of self@kwds[x] for x in kwds
@@ -448,7 +449,7 @@ class Matrix(object):
     def enblock(self, row_block: list[int], column_block: list[int]) -> 'Matrix':
         '''
         Enblock matrix according to the /row_block/ and /column_block/\n
-        ---\n
+        ---
         Mat=\n
         [[0, 1, 2],\n
         [3, 4, 5]],\n
@@ -474,6 +475,12 @@ class Matrix(object):
             column_start = 1
             row_start += x
         return Matrix(temp)
+
+    def unblock(self) -> 'Matrix':
+        '''
+        The reversed process of enblock
+        '''
+        pass
 
 
 # Test
@@ -526,5 +533,5 @@ if __name__ == '__main__':
     va = Matrix([[1], [0], [5]])
     vb = Matrix([[3], [1], [2]])
     print('__call__ test:')
-    print(d(flag=True, p=va, q=vb)['p'], '\n', d(kw=True, p=va, q=vb)['q'])
+    print(d(kw=True, p=va, q=vb)['p'], '\n', d(kw=True, p=va, q=vb)['q'])
     print(d(va, vb))
