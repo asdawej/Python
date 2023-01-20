@@ -396,12 +396,12 @@ class Matrix(object):
         '''
         return self.shape.m*self.shape.n
 
-    def __call__(self, *args: 'Matrix', flag: bool = False, **kwds: 'Matrix') -> 'Matrix':
+    def __call__(self, *args: 'Matrix', kw: bool = False, **kwds: 'Matrix') -> 'Matrix':
         '''
         If flag is False, return self@args\n
         If, flag is True, return a dict of self@kwds[x] for x in kwds
         '''
-        if flag:
+        if kw:
             for x in kwds:
                 kwds[x] = self@kwds[x]
             return kwds
@@ -526,5 +526,5 @@ if __name__ == '__main__':
     va = Matrix([[1], [0], [5]])
     vb = Matrix([[3], [1], [2]])
     print('__call__ test:')
-    print(d(flag=True, p=va, q=vb)['p'], '\n', d(flag=True, p=va, q=vb)['q'])
+    print(d(flag=True, p=va, q=vb)['p'], '\n', d(kw=True, p=va, q=vb)['q'])
     print(d(va, vb))
