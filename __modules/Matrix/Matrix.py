@@ -396,6 +396,28 @@ class Matrix(object):
         '''
         return self.shape.m*self.shape.n
 
+    def __call__(self, *args: 'Matrix', flag: bool = False, **kwds: 'Matrix') -> 'Matrix':
+        '''
+        If flag is False, return self@args\n
+        If, flag is True, return a dict of self@kwds[x] for x in kwds
+        '''
+        if flag:
+            for x in kwds:
+                kwds[x] = self@kwds[x]
+            return kwds
+        else:
+            size = len(args)
+            if size == 1:
+                return self@args[0]
+            else:
+                row = len(args[0])
+                temp: list[list] = []
+                for i in range(row):
+                    temp.append([])
+                    for j in range(size):
+                        temp[-1].append(args[j][i+1])
+                return self@Matrix(temp)
+
     def __iter__(self) -> Iterator:
         '''
         An Iterator first left to right then up to down
@@ -462,26 +484,32 @@ if __name__ == '__main__':
     a[1, ...] = -1
     print('__setitem__ test:')
     print(a, '\n')
+
     b = Matrix([[1], [2], [3]])
     print('vector __getitem__ test:')
     print(b[2:], '\n')
     b[:3] = 0
     print('vector __setitem__ test:')
     print(b, '\n')
+
     print('__len__ test:')
     print(len(a), '\n')
+
     print('self.T test:')
     print(a.T(), '\n')
     print('vector self.T test:')
     print(b.T(), '\n')
     c = a.enblock([1, 1], [1, 2])
+
     print('enblock test:')
     print(c[1, 1], c[1, 2])
     print(c[2, 1], c[2, 2], '\n')
+
     print('__iter__ test:')
     print(-1 in a, 6 in a, '\n')
     print('__reversed__ test:')
     print([_ for _ in reversed(a)], '\n')
+
     d = Matrix([[1, 3, 2], [4, 0, 1]])
     e = Matrix([[1, 3], [0, 1], [5, 2]])
     f = Matrix([[1, 2, 3], [4, 5, 6]])
@@ -494,3 +522,9 @@ if __name__ == '__main__':
     print(4*f, '\n')
     print('__matmul__ test:')
     print(d@e, '\n')
+
+    va = Matrix([[1], [0], [5]])
+    vb = Matrix([[3], [1], [2]])
+    print('__call__ test:')
+    print(d(flag=True, p=va, q=vb)['p'], '\n', d(flag=True, p=va, q=vb)['q'])
+    print(d(va, vb))
