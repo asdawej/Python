@@ -46,6 +46,25 @@ def ones(*args: int) -> Matrix:
     return temp
 
 
+def nones(*args: int) -> Matrix:
+    '''
+    Create a Matrix with None\n
+    ---
+    nones(2, 3) ->\n
+    [[None, None, None],\n
+    [None, None, None]]\n
+    nones(2) ->\n
+    [[None, None],\n
+    [None, None]]
+    '''
+    if len(args) == 1:
+        temp = zeros(args[0])
+    else:
+        temp = zeros(args[0], args[1])
+    temp[...] = None
+    return temp
+
+
 def eye(*args: int) -> Matrix:
     '''
     Create a Matrix with only the diagnal being 1\n

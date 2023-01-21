@@ -15,6 +15,10 @@ class Shape(object):
         return self.m == other.m and self.n == other.n
 
 
+class ShapeError(Exception):
+    pass
+
+
 class Matrix(object):
     '''
     Members are /mat/, /shape.m/, /shape.n/\n
@@ -33,6 +37,11 @@ class Matrix(object):
                 raise ValueError
         self.mat = mat
         self.shape = Shape(m=len(mat), n=s)
+
+    def __eq__(self, other: 'Matrix') -> bool:
+        if not isinstance(other, Matrix):
+            return NotImplemented
+        return self.shape == other.shape and self.mat == other.mat
 
     def __getitem__(
         self, key: int | slice | EllipsisType | tuple[int | slice | EllipsisType]
@@ -320,7 +329,11 @@ class Matrix(object):
 
     def __add__(self, other: 'Matrix') -> 'Matrix':
         if self.shape != other.shape:
-            raise ValueError('Wrong shape')
+            raise ShapeError(
+                'The left is {}x{} but the right is {}x{}'.format(
+                    self.shape.m, self.shape.n, other.shape.m, other.shape.n
+                )
+            )
         temp: list[list] = []
         for i in range(self.shape.m):
             temp.append([])
@@ -330,7 +343,11 @@ class Matrix(object):
 
     def __sub__(self, other: 'Matrix') -> 'Matrix':
         if self.shape != other.shape:
-            raise ValueError('Wrong shape')
+            raise ShapeError(
+                'The left is {}x{} but the right is {}x{}'.format(
+                    self.shape.m, self.shape.n, other.shape.m, other.shape.n
+                )
+            )
         temp: list[list] = []
         for i in range(self.shape.m):
             temp.append([])
@@ -356,7 +373,11 @@ class Matrix(object):
 
     def __matmul__(self, other: 'Matrix') -> 'Matrix':
         if self.shape.n != other.shape.m:
-            raise ValueError('Wrong shape')
+            raise ShapeError(
+                'The left is *x{} but the right is {}x*'.format(
+                    self.shape.n, other.shape.m
+                )
+            )
 
         def f(a: int, b: int) -> Any:
             l = []
@@ -399,8 +420,8 @@ class Matrix(object):
 
     def __call__(self, *args: 'Matrix', kw: bool = False, **kwds: 'Matrix') -> 'Matrix' | Dict[str, 'Matrix']:
         '''
-        If flag is False, return self@args\n
-        If, flag is True, return a dict of self@kwds[x] for x in kwds
+        If kw is False, return self@args\n
+        If, kw is True, return a dict of self@kwds[x] for x in kwds
         '''
         if kw:
             for x in kwds:
@@ -478,9 +499,74 @@ class Matrix(object):
 
     def unblock(self) -> 'Matrix':
         '''
-        The reversed process of enblock
+        The reversed process of enblock\n
+        ---
+        Apart from the trivial examples, we also support these special exaples:\n
+        - [[2x2, 3x3]]\n
+            We only use the above 2 rows of the second Matrix
+        - [[3x1, Any element]]\n
+            We use the element to fill up the 2 missing elements
         '''
-        pass
+        row_block: list[int] = []
+        column_block: list[int] = []
+        # Count row_block
+        for i in range(1, self.shape.m+1):
+            if isinstance(self[i, 1], Matrix):
+                row_block.append(self[i, 1].shape.m)
+            else:
+                row_block.append(1)
+        m = sum(row_block)
+        # Count column_block
+        for j in range(1, self.shape.n+1):
+            if isinstance(self[1, j], Matrix):
+                column_block.append(self[1, j].shape.n)
+            else:
+                column_block.append(1)
+        n = sum(column_block)
+
+        # Init a None Matrix
+        temp: list[list] | Matrix = []
+        for i in range(m):
+            temp.append([])
+            for _ in range(n):
+                temp[-1].append(None)
+        temp = Matrix(temp)
+
+        row_ptr, row_save = 1, 0
+        column_ptr, column_save = 1, 0
+        # Assign value
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                # Right index out
+                if j > column_save+column_block[column_ptr-1]:
+                    column_save += column_block[column_ptr-1]
+                    column_ptr += 1
+                # Bottom index out
+                if i > row_save+row_block[row_ptr-1]:
+                    row_save += row_block[row_ptr-1]
+                    row_ptr += 1
+                try:
+                    if isinstance(self[row_ptr, column_ptr], Matrix):
+                        temp[i, j] = self[row_ptr, column_ptr][i-row_save, j-column_save]
+                    else:
+                        temp[i, j] = self[row_ptr, column_ptr]
+                # Only one kind of error of ShapeError
+                except:
+                    if isinstance(self[row_ptr, column_ptr], Matrix):
+                        _m, _n = self[row_ptr, column_ptr].shape.m, self[row_ptr, column_ptr].shape.n
+                    else:
+                        _m, _n = 1, 1
+                    raise ShapeError(
+                        "The {} row and {} column should be a {}x{} Matrix, \
+                        but it's {}x{}".format(
+                            row_ptr, column_ptr,
+                            row_block[row_ptr-1], column_block[column_ptr-1],
+                            _m, _n
+                        )
+                    )
+            column_ptr = 1
+            column_save = 0
+        return temp
 
 
 # Test
@@ -511,6 +597,9 @@ if __name__ == '__main__':
     print('enblock test:')
     print(c[1, 1], c[1, 2])
     print(c[2, 1], c[2, 2], '\n')
+
+    print('unblock test:')
+    print(c.unblock(), '\n')
 
     print('__iter__ test:')
     print(-1 in a, 6 in a, '\n')
