@@ -12,6 +12,8 @@ In hand but now do not doing now.
 
 In hand.
 
+Now, it is a independent project: [PyMatrix](https://github.com/asdawej/PyMatrix), and thus I do not track it here.
+
 ## FAILED/Curve_Fit
 
 First practice of machine learning, half-success and half-failure.
