@@ -1,3 +1,4 @@
 JiuZhangSuanShu.lnk
 .vscode/
 __modules/PyMatrix/
+*__pycache__/
