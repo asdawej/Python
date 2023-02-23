@@ -13,7 +13,7 @@
 > A notebook used on the desktop in a cmd interface.
 > To install, first you should download DesktopNote.exe in the release _DesktopNote_, then run
 > ```PowerShell
-> python -m setup.py
+> python -m setup
 > ```
 > It will create a file _note.dat_, putting it with _DesktopNote.exe_ in the same directory, and then run it!
 
