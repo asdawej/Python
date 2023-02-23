@@ -1,5 +1,7 @@
-JiuZhangSuanShu.lnk
+*.lnk
 .vscode/
 __modules/PyMatrix/
 EasyConsole/
 *__pycache__/
+DesktopNote/note.dat
+DesktopNote/DesktopNote.exe

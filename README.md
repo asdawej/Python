@@ -8,6 +8,15 @@
 
 > A learning model trying to transform a uniformed random number generator to a normal random number generator by machine learning.
 
+***DesktopNote***
+
+> A notebook used on the desktop in a cmd interface.
+> To install, first you should download DesktopNote.exe in the release _DesktopNote_, then run
+> ```PowerShell
+> python -m setup.py
+> ```
+> It will create a file _note.dat_, putting it with _DesktopNote.exe_ in the same directory, and then run it!
+
 ***EasyConsole***
 
 > A console that has a fast way to get a file.[EasyConsole](https://github.com/asdawej/EasyConsole)
