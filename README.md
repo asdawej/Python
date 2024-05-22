@@ -18,6 +18,7 @@
 > It will create a file _note.dat_, putting it with _DesktopNote.exe_ in the same directory, and then run it!
 > 
 > _v1.1.0:_ **In the new release v1.1.0, you just need to run _DesktopNote.exe_ and _setup.py_ was deleted.**
+> 
 > Now it will be handled in an independent project: [DesktopNote](https://github.com/asdawej/DesktopNote).
 
 ***EasyConsole***
