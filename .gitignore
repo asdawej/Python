@@ -1,8 +1,7 @@
 *.lnk
 .vscode/
+*__pycache__/
+__modules/PyCharGraphics/
 __modules/PyMatrix/
 EasyConsole/
-*__pycache__/
-DesktopNote/note.dat
-DesktopNote/DesktopNote.exe
-PyCharGraphics/
+DesktopNote/
