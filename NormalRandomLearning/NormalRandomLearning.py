@@ -69,15 +69,15 @@ class RandomLearning(object):
         if not epsilon:
             self.epsilon: Deci = Deci(0.1)
         else:
-            if epsilon >= self.limits[1]-self.limits[0]:
+            if epsilon >= self.limits[1] - self.limits[0]:
                 raise ValueError('Epsilon too big')
             self.epsilon: Deci = Deci(epsilon)
 
-        self.groups: Deci = Deci(ceil((self.limits[1]-self.limits[0])/self.epsilon))
+        self.groups: Deci = Deci(ceil((self.limits[1] - self.limits[0]) / self.epsilon))
 
-        self.length: Deci = (self.limits[1]-self.limits[0])/self.groups
+        self.length: Deci = (self.limits[1] - self.limits[0]) / self.groups
 
-        self.weight: np.ndarray = np.ones(int(self.groups), dtype=Deci)/self.groups
+        self.weight: np.ndarray = np.ones(int(self.groups), dtype=Deci) / self.groups
 
         self.cdf: np.ndarray = np.insert(
             np.cumsum(self.weight), 0,
@@ -86,10 +86,10 @@ class RandomLearning(object):
 
     def __call__(self) -> Real:
         _rdflag = Deci(rd.random())
-        _groupidx = Deci(int(np.argwhere(_rdflag < self.cdf)[0][0])-1)
+        _groupidx = Deci(int(np.argwhere(_rdflag < self.cdf)[0][0]) - 1)
         return rd.uniform(
-            float(self.limits[0]+(_groupidx-1)*self.length),
-            float(self.limits[0]+_groupidx*self.length)
+            float(self.limits[0] + (_groupidx - 1) * self.length),
+            float(self.limits[0] + _groupidx * self.length)
         )
 
     def learn(self, n: int) -> NoReturn:
@@ -100,7 +100,7 @@ class RandomLearning(object):
             _rdresult = Deci(self.target_rd(*self.target_arg))
             while _rdresult >= self.limits[1] or _rdresult < self.limits[0]:
                 _rdresult = Deci(self.target_rd(*self.target_arg))
-            _count_result[int((_rdresult-self.limits[0])/self.length)] += 1
-        _count_result: np.ndarray = _count_result/Deci(n)
-        self.weight: np.ndarray = (self.weight+_count_result)/Deci(2)
+            _count_result[int((_rdresult - self.limits[0]) / self.length)] += 1
+        _count_result: np.ndarray = _count_result / Deci(n)
+        self.weight: np.ndarray = (self.weight + _count_result) / Deci(2)
         self.cdf[1:] = np.cumsum(self.weight)

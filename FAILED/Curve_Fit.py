@@ -8,7 +8,7 @@ PI = 3.14159265358979
 
 # exp
 exp_accuracy = 1                  #
-def exp_f(x): return 2*x          #
+exp_f = lambda x: 2 * x           #
 exp_section = (0, 1)              #
 exp_step = 0.001                  #
 exp_length = 10                   #
@@ -17,8 +17,6 @@ exp_coefficientrange = (-10, 10)  #
 exp_times = 1000                  #
 
 # cls
-
-
 class Data_line(object):
     def __init__(self, f: list[Number], score: int):
         self.f = f
@@ -28,8 +26,6 @@ class Data_line(object):
         return [self.f, self.score]
 
 # func
-
-
 def func_floatrange(a: Number, b: Number, step: Number) -> list:
     _l = []
     _s = a
@@ -43,7 +39,7 @@ def func_translate(f: list[Number]) -> Function:
     def _f(x: Number) -> Number:
         __s = 0
         for __i, __y in enumerate(f):
-            __s += __y*x**__i
+            __s += __y * x**__i
         return __s
     return _f
 
@@ -56,7 +52,7 @@ def func_judge(x: Data_line) -> Data_line:
     for _y in func_floatrange(exp_section[0], exp_section[1], exp_step):
         _s_dataf = _f(_y)
         _s_expf = exp_f(_y)
-        _s_differ += abs(_s_expf-_s_dataf)
+        _s_differ += abs(_s_expf - _s_dataf)
     if _s_differ <= exp_accuracy:
         x.score = exp_length
     x.score -= len(x.f)

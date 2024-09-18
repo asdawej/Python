@@ -32,8 +32,8 @@ class Model:
         self.size = size
         self.goodlength = 0
         self.badlength = 0
-        self.goodmean = [[0]*self.size.n]*self.size.m
-        self.badmean = [[0]*self.size.n]*self.size.m
+        self.goodmean = [[0] * self.size.n] * self.size.m
+        self.badmean = [[0] * self.size.n] * self.size.m
 
     def generate(self, x: list[float]) -> list[float]:
         '''<2>
@@ -41,10 +41,10 @@ class Model:
         '''
         if len(x) != self.size.n:
             raise TypeError
-        y = [0]*self.size.m
+        y = [0] * self.size.m
         for i in range(self.size.n):
             for j in range(self.size.m):
-                y[j] += x[i]*self.arr[j][i]
+                y[j] += x[i] * self.arr[j][i]
         return y
 
     def mean(self, new_arr: list[list[float]], good: bool):
@@ -55,13 +55,13 @@ class Model:
             for i in range(self.size.m):
                 for j in range(self.size.n):
                     self.goodmean[i][j] = (
-                        self.goodmean[i][j]*self.goodlength+new_arr[i][j])/(self.goodlength+1)
+                        self.goodmean[i][j] * self.goodlength + new_arr[i][j]) / (self.goodlength + 1)
                     self.goodlength += 1
         else:
             for i in range(self.size.m):
                 for j in range(self.size.n):
                     self.badmean[i][j] += (self.badmean[i][j] *
-                                           self.badlength+new_arr[i][j])/(self.badlength+1)
+                                           self.badlength + new_arr[i][j]) / (self.badlength + 1)
                     self.badlength += 1
 
     def evolution(self, new_arr: list[list[float]], good: bool):
@@ -100,7 +100,7 @@ def test_model(x: list[float]) -> list[float]:
     '''<1>
     预期模型: [[1, 1]]
     '''
-    return [x[0]+x[1]]
+    return [x[0] + x[1]]
 
 
 def check(model: Model, x: list[float], count_i: int):
@@ -114,7 +114,7 @@ def check(model: Model, x: list[float], count_i: int):
         print(y)
         print('Output y_test=', end='')
         print(y_test)
-    if abs(y[0]-y_test[0]) <= EPSILON:
+    if abs(y[0] - y_test[0]) <= EPSILON:
         model.evolution(new_arr=model.arr, good=True)
     else:
         model.evolution(new_arr=model.arr, good=False)

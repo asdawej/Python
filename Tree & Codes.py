@@ -37,7 +37,7 @@ class TreeNode(object):
         sons: list['TreeNode'] = None
     ):
         self.index = index
-        if sons == None:
+        if sons is None:
             self.sons = []
         else:
             self.sons = sons
@@ -97,9 +97,9 @@ def istree(arr: list[list[bool]]) -> bool:
         for j in range(i, n):
             if arr[i][j]:
                 E_length += 1
-                if i+1 in connect_part:
-                    connect_part.add(j+1)
-    if len(connect_part) != n or E_length != n-1:
+                if i + 1 in connect_part:
+                    connect_part.add(j + 1)
+    if len(connect_part) != n or E_length != n - 1:
         # It means there're at least 2 parts or |E| != |V|-1
         return False
     else:
@@ -122,20 +122,20 @@ def father_code(root: TreeNode) -> list[int]:
                 f(x)
 
     f(root)
-    code = [0]*(length-1)
+    code = [0] * (length - 1)
     for i in range(1, length):
         for j in range(length):
             if (j, i) in connect_set:
-                code[i-1] = j   # assign i_{father} to code[i_{son}-1]
+                code[i - 1] = j   # assign i_{father} to code[i_{son}-1]
                 break
     return code
 
 
 def father_code2tree(code: list[int]) -> TreeNode:
-    length = len(code)+1
+    length = len(code) + 1
     nodes = [TreeNode(index=i) for i in range(length)]
-    for i in range(length-1):
-        nodes[code[i]].sons.append(nodes[i+1])
+    for i in range(length - 1):
+        nodes[code[i]].sons.append(nodes[i + 1])
     return nodes[0]
 
 
@@ -144,7 +144,7 @@ def prufer_code(root: TreeNode) -> list[int]:
     length = len(mat)       # |V|
     pick_set = set()        # store the nodes picked out
     code = []               # store prufer code
-    while len(pick_set) != length-1:
+    while len(pick_set) != length - 1:
         for i in range(1, length):
             if not i in pick_set:
                 connect_num = 0     # degree
@@ -162,8 +162,8 @@ def prufer_code(root: TreeNode) -> list[int]:
 
 
 def prufer_code2tree(code: list[int]) -> TreeNode:
-    length = len(code)+2
-    aug_code = code+[0]         # add 0 to the end
+    length = len(code) + 2
+    aug_code = code + [0]         # add 0 to the end
     nodes = [
         TreeNode(index=i)
         for i in range(length)
@@ -174,7 +174,7 @@ def prufer_code2tree(code: list[int]) -> TreeNode:
         for i in range(1, length)
         if not i in aug_code
     ]
-    for i in range(length-1):
+    for i in range(length - 1):
         temp = length    # the temp index-min node
         for x in leaves:
             if not x in above_line and not x in aug_code[i:]:
@@ -185,7 +185,7 @@ def prufer_code2tree(code: list[int]) -> TreeNode:
                 if x < temp:
                     temp = x
         above_line.append(temp)
-    for i in range(length-1):
+    for i in range(length - 1):
         nodes[aug_code[i]].sons.append(nodes[above_line[i]])
     return nodes[0]
 
@@ -219,7 +219,7 @@ class UnionNode(object):
         self,
         interset: list[SecondaryNode] = None
     ):
-        if interset == None:
+        if interset is None:
             self.interset = []
         else:
             self.interset = interset
