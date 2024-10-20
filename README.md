@@ -8,6 +8,10 @@
 
 > A learning model trying to transform a uniformed random number generator to a normal random number generator by machine learning.
 
+***RegressionClassifier***
+
+> Using binary-classifier SVM to calculate linear-regression problem.
+
 ***__modules/***
 
 > ***LinkedList***
