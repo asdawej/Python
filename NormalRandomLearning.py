@@ -4,12 +4,12 @@
 from __future__ import annotations
 
 import random as rd
-import numpy as np
 from decimal import Decimal as Deci
-from typing import Iterable, Callable, Any, NoReturn
-from numbers import Real
 from math import ceil
+from numbers import Real
+from typing import Callable, Iterable, NoReturn
 
+import numpy as np
 
 __author__ = 'asdawej'
 
